@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
-using TMPro; // textmeshpro kütüphanesini kullanmak icin ekliyoruz
+using TMPro;
 
 public class TrackManager : MonoBehaviour
 {
@@ -11,7 +11,6 @@ public class TrackManager : MonoBehaviour
     public int trackCapacity = 18;
     public List<Transform> blockedWaypoints = new List<Transform>();
 
-    // ui bilesenleri ve renk ayarlari
     public TextMeshProUGUI capacityText;
     public Color normalTextColor = Color.white;
     public Color fullTextColor = Color.red;
@@ -24,7 +23,6 @@ public class TrackManager : MonoBehaviour
 
     private void Start()
     {
-        // oyun basladiginda yaziyi ilk degerine gore guncelle
         updateCapacityUI();
     }
 
@@ -72,13 +70,10 @@ public class TrackManager : MonoBehaviour
     // arayuzdeki metni ve rengini guncelleyen ozel fonksiyon
     private void updateCapacityUI()
     {
-        // eger text atanmamissa hata vermemesi icin guvenlik kontrolu
         if (capacityText == null) return;
 
-        // ekrandaki metni ornegin 5/18 seklinde yazdir
         capacityText.text = carsOnTrack.Count + "/" + trackCapacity;
 
-        // eger yoldaki arac sayisi kapasiteye ulastiysa rengi kirmizi yap
         if (carsOnTrack.Count >= trackCapacity)
         {
             capacityText.color = fullTextColor;

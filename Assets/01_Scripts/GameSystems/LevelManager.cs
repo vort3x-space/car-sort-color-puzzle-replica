@@ -10,11 +10,7 @@ public class LevelManager : MonoBehaviour
 
     public LevelDatabase levelDatabase;
     public int currentLevelIndex = 0;
-
-    // uretilecek araba sablonu
     public Car carPrefab;
-
-    // renk materyallerini inspector uzerinden atayacagimiz referanslar
     public Material redMat;
     public Material blueMat;
     public Material yellowMat;
@@ -31,7 +27,6 @@ public class LevelManager : MonoBehaviour
     public string endMessage = "That's the end of the case study";
     public string restartButtonLabel = "BACK TO START";
 
-    // su an sahnede olan levelin referansi
     private GameObject currentLevelInstance;
     private ParkingLane[] currentLevelLanes;
     private readonly List<Car> spawnedCars = new List<Car>();
@@ -51,7 +46,6 @@ public class LevelManager : MonoBehaviour
         hideLevelUpButton();
         hideEndScreen();
 
-        // oyun basladiginda ilk leveli yukle
         loadLevel(currentLevelIndex);
     }
 
@@ -95,10 +89,8 @@ public class LevelManager : MonoBehaviour
             TrackManager.instance.setTrackCapacity(levelData.trackCapacity);
         }
 
-        // 1 haritayi sahneye olustur
         currentLevelInstance = Instantiate(levelData.levelLayoutPrefab);
 
-        // KRITIK DUZELTME olusturulan haritanin waypointlerini trackmanager a tanit
         LevelLayout layout = currentLevelInstance.GetComponent<LevelLayout>();
         if (layout != null)
         {
@@ -106,11 +98,9 @@ public class LevelManager : MonoBehaviour
             TrackManager.instance.waypoints.AddRange(layout.waypoints);
         }
 
-        // 2 haritadaki tum bos seritleri bul
         ParkingLane[] lanesInLevel = currentLevelInstance.GetComponentsInChildren<ParkingLane>();
         currentLevelLanes = lanesInLevel;
 
-        // 3 datadaki renkleri okuyup arabalari olustur
         for (int i = 0; i < levelData.laneSetups.Length; i++)
         {
             if (i >= lanesInLevel.Length) break;
@@ -184,7 +174,6 @@ public class LevelManager : MonoBehaviour
         }
     }
 
-    // ileride butonla level gecmek icin kullanacagimiz fonksiyon
     public void nextLevel()
     {
         if (levelDatabase == null || levelDatabase.levels == null || levelDatabase.levels.Count == 0) return;
