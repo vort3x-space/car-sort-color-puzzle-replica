@@ -1,13 +1,15 @@
 using UnityEngine;
 using DG.Tweening;
+using EPOOutline;
 
 public class Car : MonoBehaviour
 {
+    public Outlinable carOutline;
     public CarColor carColor;
 
     private int currentWaypointIndex = 0;
     private bool isMovingOnTrack = false;
-    private float moveSpeed = 15f;
+    private float moveSpeed = 50f;
 
     private ParkingLane targetLane;
     private bool hasReservedSpot = false;
@@ -19,6 +21,8 @@ public class Car : MonoBehaviour
         hasReservedSpot = false;
         targetLane = null;
         sourceLane = lane;
+
+        setOutlineVisibility(false);
 
         transform.DOMove(connectionPoint.position, 0.35f).SetEase(Ease.OutQuad).OnComplete(() =>
         {
@@ -181,6 +185,14 @@ public class Car : MonoBehaviour
         if (carBodyRenderer != null)
         {
             carBodyRenderer.material = colorMaterial;
+        }
+    }
+
+    public void setOutlineVisibility(bool isVisible)
+    {
+        if (carOutline != null)
+        {
+            carOutline.enabled = isVisible;
         }
     }
 

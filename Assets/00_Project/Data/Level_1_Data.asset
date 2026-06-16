@@ -12,10 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 28fb969ea000424498e33bb2dd0dc1b5, type: 3}
   m_Name: Level_1_Data
   m_EditorClassIdentifier: 
-  levelLayoutPrefab: {fileID: 2729564576493232207, guid: 49591e527db195e48980f217e7852ffd, type: 3}
-  trackCapacity: 12
+  levelLayoutPrefab: {fileID: 382630352044567525, guid: b3233bbb983b47f4aacc774555abd41f, type: 3}
+  trackCapacity: 4
   laneSetups:
-  - carColors: 00000000000000000100000001000000
-  - carColors: 01000000010000000000000000000000
-  - carColors: 00000000010000000000000001000000
-  - carColors: 01000000000000000100000000000000
+  - carColors: 0000000000000000
+  - carColors: 0000000000000000

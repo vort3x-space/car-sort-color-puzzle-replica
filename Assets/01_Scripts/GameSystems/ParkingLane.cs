@@ -6,7 +6,6 @@ using DG.Tweening;
 public class ParkingLane : MonoBehaviour, IPointerClickHandler
 {
     public List<Car> parkedCars = new List<Car>();
-
     public List<Car> exitingCars = new List<Car>();
 
     public int laneCapacity = 4;
@@ -19,6 +18,11 @@ public class ParkingLane : MonoBehaviour, IPointerClickHandler
     public Transform barrierObj;
     public float barrierClosedY = -1.7f;
     public float barrierOpenY = -0.1f;
+
+    // YENİ EKLENEN KISIM: VFX için değişken tanımı
+    [Header("Visual Effects")]
+    public ParticleSystem completionVFX;
+
     private bool isCompleted = false;
     public bool IsCompleted => isCompleted;
 
@@ -26,11 +30,38 @@ public class ParkingLane : MonoBehaviour, IPointerClickHandler
     {
         foreach (Car car in parkedCars)
         {
-            // eğer şerit içinde en öndeki renkten farklı bir renk varsa, 
-            // ve biz o rengi şeride sokmaya çalışıyorsak engelle
             if (car.carColor != color) return false;
         }
         return true;
+    }
+
+    public void updateOutlines()
+    {
+        if (parkedCars == null) return;
+
+        // 1. Önce şeritteki TÜM arabaların outline'ını tamamen kapat
+        foreach (Car car in parkedCars)
+        {
+            if (car != null) car.setOutlineVisibility(false);
+        }
+
+        // 2. Eğer şerit tamamlanmışsa (bariyer kapandıysa) hiçbir ışık yanmasın, direkt çık
+        if (isCompleted || parkedCars.Count == 0) return;
+
+        // 3. Sadece yola çıkmaya hazır olan EN ÖNDEKİ renk grubunu yak
+        CarColor topColor = parkedCars[parkedCars.Count - 1].carColor;
+
+        for (int i = parkedCars.Count - 1; i >= 0; i--)
+        {
+            if (parkedCars[i] != null && parkedCars[i].carColor == topColor)
+            {
+                parkedCars[i].setOutlineVisibility(true);
+            }
+            else
+            {
+                break; // Farklı renge denk gelince dur
+            }
+        }
     }
 
     private void Start()
@@ -38,7 +69,6 @@ public class ParkingLane : MonoBehaviour, IPointerClickHandler
         updateLaneTargetColor();
         setBarrierLocalY(isCompleted ? barrierOpenY : barrierClosedY);
 
-        // oyun basladiginda listedeki arabalari fiziksel olarak dogru noktalara isinla
         for (int i = 0; i < parkedCars.Count; i++)
         {
             if (parkedCars[i] != null && parkPositions.Length > i)
@@ -47,6 +77,7 @@ public class ParkingLane : MonoBehaviour, IPointerClickHandler
                 parkedCars[i].transform.rotation = parkPositions[i].rotation;
             }
         }
+        updateOutlines();
     }
 
     public void OnPointerClick(PointerEventData eventData)
@@ -68,11 +99,18 @@ public class ParkingLane : MonoBehaviour, IPointerClickHandler
         }
 
         isCompleted = true;
+        updateOutlines();
 
         // bariyeri yukari kaldirma animasyonu
         if (barrierObj != null)
         {
             barrierObj.DOLocalMoveY(barrierOpenY, 0.5f).SetEase(Ease.OutBack);
+        }
+
+        // YENİ EKLENEN KISIM: Şerit tamamlandığında VFX oynat
+        if (completionVFX != null)
+        {
+            completionVFX.Play(); // Efekti başlatır
         }
 
         if (LevelManager.instance != null)
@@ -90,7 +128,6 @@ public class ParkingLane : MonoBehaviour, IPointerClickHandler
         barrierObj.localPosition = localPosition;
     }
 
-    // seridin toplamda ne kadar dolu olacagini hesaplar
     public int getTotalExpectedCars()
     {
         int parkedCount = parkedCars != null ? parkedCars.Count : 0;
@@ -105,7 +142,6 @@ public class ParkingLane : MonoBehaviour, IPointerClickHandler
         return Mathf.Min(laneCapacity, positionCapacity);
     }
 
-    // seridin anlik olarak fiziksel kapasitesini kontrol eder
     public bool isPhysicallyAvailable()
     {
         if (isCompleted) return false;
@@ -175,7 +211,6 @@ public class ParkingLane : MonoBehaviour, IPointerClickHandler
         return true;
     }
 
-    // araba yola tamamen ulastiginda cagrilan fonksiyon
     public void carSuccessfullyLeft(Car car)
     {
         exitingCars.Remove(car);
@@ -230,6 +265,7 @@ public class ParkingLane : MonoBehaviour, IPointerClickHandler
             exitingCars.Add(car);
 
             updateLaneTargetColor();
+            updateOutlines();
 
             DOVirtual.DelayedCall(delay, () =>
             {
